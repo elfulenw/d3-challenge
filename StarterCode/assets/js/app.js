@@ -26,18 +26,18 @@ var chosenXAxis = "poverty";
 var chosenYAxis = "obesity";
 
 // Update the x-scale and y-scale upon click
-function xScale(data, chosenXAxis) {
+function xScale(censusData, chosenXAxis) {
     var xLinearScale = d3.scaleLinear()
-        .domain([d3.min(data, d => d[chosenXAxis]) * 0.8,
-            d3.max(data, d => d[chosenXAxis]) * 1.2])
+        .domain([d3.min(censusData, d => d[chosenXAxis]) * 0.8,
+            d3.max(censusData, d => d[chosenXAxis]) * 1.2])
             .range([0, width]);
     return xLinearScale;
 }
 
 function yScale(data, chosenYAxis) {
     var yLinearScale = d3.scaleLinear()
-        .domain([d3.min(data, d => d[chosenYAxis]) * 0.8,
-            d3.max(data, d => d[chosenYAxis]) * 1.2])
+        .domain([d3.min(censusData, d => d[chosenYAxis]) * 0.8,
+            d3.max(censusData, d => d[chosenYAxis]) * 1.2])
             .range([height, 0]);
     return yLinearScale;
 }
@@ -126,3 +126,46 @@ function updateTooltip(chosenXAxis, chosenYAxis, circlesGroup) {
             });
         return circlesGroup;
 }
+
+(async function() {
+    var censusData = await d3.csv("assets/data/data.csv").catch(err => console.log(err))
+
+    // CSV data to integers
+    censusData.forEach(function (data){
+        data.id = +data.id;
+        data.poverty = +data.poverty;
+        data.povertyMoe = +data.povertyMoe;
+        data.age = +data.age;
+        data.ageMoe = +data.ageMoe;
+        data.income = +data.income;
+        data.incomeMoe = +data.incomeMoe;
+        data.healthcare = +data.healthcare;
+        data.healthcareLow = +data.healthcareLow;
+        data.healthcareHigh = +data.healthcareHigh;
+        data.obesity = +data.obesity;
+        data.obesityLow = +data.obesityLow;
+        data.obesityHigh = +data.obesityHigh;
+        data.smokes = +data.smokes;
+        data.smokesLow = +data.smokesLow;
+        data.smokesHigh = +data.smokesHigh;
+    });
+
+    // Initial axis functions 
+    var xLinearScale = xScale(censusData, chosenXAxis);
+    var yLinearScale = yScale(censusData, chosenYAxis);
+
+    var bottomAxis = d3.axisBottom(xLinearScale);
+    var leftAxis = d3.axisLeft(yLinearScale);
+
+    var xAxis = chartGroup.append("g")
+    .classed("x-axis", true)
+    .attr("transform", `translate(0, ${height})`)
+    .call(bottomAxis);
+
+    var yAxis = chartGroup.append("g")
+    .classed("y-axis", true)
+    .call(leftAxis);
+
+    // Initial circles
+    
+})
